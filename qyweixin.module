@@ -1,0 +1,78 @@
+<?php
+/**
+ * Implements hook_ENTITY_TYPE_insert for user entity type.
+ */
+function qyweixin_user_insert($entity) {
+	if(!\Drupal::config('qyweixin.general')->get('autosync')) return;
+	try {
+		$access_token=\Drupal::state()->get('qyweixin.access_token');
+		if(empty($access_token)) throw new Exception('access_token of qyweixin is empty.');
+		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/create?access_token=%s', $access_token);
+		$u=new stdClass();
+		$u->userid=$entity->id();
+		$u->name=$entity->getDisplayName();
+		$u->email=$entity->getEmail();
+		$u->department=[1];
+		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
+		$response=json_decode($data);
+		if($response->errcode) throw new Exception($response->errmsg);
+		\Drupal::logger('qyweixin')->info('Information of !user has been added into qyweixin.',
+			array('!user'=>$entity->getDisplayName())
+		);
+	} catch (\Exception $e) {
+		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
+		);
+	}
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update for user entity type.
+ */
+function qyweixin_user_update($entity) {
+	if(!\Drupal::config('qyweixin.general')->get('autosync')) return;
+	try {
+		$access_token=\Drupal::state()->get('qyweixin.access_token');
+		if(empty($access_token)) throw new Exception('access_token of qyweixin is empty.');
+		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/update?access_token=%s', $access_token);
+		$u=new stdClass();
+		$u->userid=$entity->id();
+		$u->name=$entity->getDisplayName();
+		$u->email=$entity->getEmail();
+		$u->department=[1];
+		$u->enable=$entity->isActive();
+		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
+		$response=json_decode($data);
+		if($response->errcode) throw new Exception($response->errmsg);
+		\Drupal::logger('qyweixin')->info('Information of !user has been updated into qyweixin.',
+			array('!user'=>$entity->getDisplayName())
+		);
+	} catch (\Exception $e) {
+		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
+		);
+	}
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete for user entity type.
+ */
+function qyweixin_user_predelete($entity) {
+	if(!\Drupal::config('qyweixin.general')->get('autosync')) return;
+	try {
+		$access_token=\Drupal::state()->get('qyweixin.access_token');
+		if(empty($access_token)) throw new Exception('access_token of qyweixin is empty.');
+		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=%s&userid=%s', $access_token, $entity->id());
+		$data = (string) \Drupal::httpClient()->get($url)->getBody();
+		$response=json_decode($data);
+		if($response->errcode) throw new Exception($response->errmsg);
+		\Drupal::logger('qyweixin')->info('Information of !user has been deleted from qyweixin.',
+			array('!user'=>$entity->getDisplayName())
+		);
+	} catch (\Exception $e) {
+		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
+		);
+	}
+}
+?>

@@ -33,9 +33,6 @@ class SettingsForm extends ConfigFormBase {
 	*/
 	public function buildForm(array $form, FormStateInterface $form_state) {
 		$default_setting=$this->config('qyweixin.general');
-		$state=\Drupal::state();
-		drupal_set_message($state->get('qyweixin.access_token'));
-		drupal_set_message($state->get('qyweixin.expires_in'));
 		$form['corpid']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('CorpID for Qiye Weixin'),
@@ -57,7 +54,7 @@ class SettingsForm extends ConfigFormBase {
 		$form['users']['autosync']=array(
 			'#type' => 'checkbox',
 			'#title' => $this->t('Auto sync users to qyweixin contact book'),
-			'#description' => $this->t('Automatically add/remove/modify users in qyweixin, according to local user database.'),
+			'#description' => $this->t('Automatically add/remove/modify users in qyweixin, according to local user database. Roles will become departments.'),
 			'#default_value' => empty($default_setting->get('autosync'))?'':$default_setting->get('autosync'),
 		);
 		return parent::buildForm($form, $form_state);
@@ -69,7 +66,7 @@ class SettingsForm extends ConfigFormBase {
 	public function validateForm(array &$form, FormStateInterface $form_state) {
 		$client = \Drupal::httpClient();
 		// Only do test if the settings are changed
-		if($this->config('qyweixin.general')->get('corpid')!=$form_state->getValue('corpid') || $this->config('qyweixin.general')->get('corpsecret')!=$form_state->getValue('corpsecret')) {
+		if(1 || $this->config('qyweixin.general')->get('corpid')!=$form_state->getValue('corpid') || $this->config('qyweixin.general')->get('corpsecret')!=$form_state->getValue('corpsecret')) {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', $form_state->getValue('corpid'), $form_state->getValue('corpsecret'));
 			try {
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
@@ -106,7 +103,7 @@ class SettingsForm extends ConfigFormBase {
 		if($r) {
 			$state=\Drupal::state();
 			$state->set('qyweixin.access_token', $r->access_token);
-			$state->set('qyweixin.expires_in', $r->expires_in+time());
+			$state->set('qyweixin.access_token.expires_in', $r->expires_in+time());
 		}
 		
 		parent::submitForm($form, $form_state);
