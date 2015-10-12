@@ -39,7 +39,46 @@ class SettingsForm extends ConfigFormBase {
 			'#default_value' => empty($default_setting->get('corpid'))?'':$default_setting->get('corpid'),
 			'#required' => TRUE,
 		);
+		$form['corpsecret']=array(
+			'#type' => 'textfield',
+			'#title' => $this->t('Corp Secret for Qiye Weixin'),
+			'#description' => $this->t('Please note that, we only support one manage group per site now.'),
+			'#default_value' => empty($default_setting->get('corpsecret'))?'':$default_setting->get('corpsecret'),
+			'#required' => TRUE,
+		);
+		$form['users']=array(
+			'#type' => 'fieldset',
+			'#title' => $this->t('User interchange between drupal and qyweixin'),
+			'#tree' => TRUE,
+		);
+		$form['users']['autosync']=array(
+			'#type' => 'checkbox',
+			'#title' => $this->t('Auto sync users to qyweixin contact book'),
+			'#description' => $this->t('Automatically add/remove/modify users in qyweixin, according to local user database.'),
+			'#default_value' => empty($default_setting->get('autosync'))?'':$default_setting->get('autosync'),
+		);
 		return parent::buildForm($form, $form_state);
+	}
+
+	/**
+	* {@inheritdoc}
+	*/
+	public function validateForm(array &$form, FormStateInterface $form_state) {
+		$client = \Drupal::httpClient();
+		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', $form_state->getValue('corpid'), $form_state->getValue('corpsecret'));
+		try {
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$r=json_decode($data);
+			if(empty($r))
+				throw new \Exception(json_last_error_msg());
+			if(!empty($r->errcode))
+				throw new \Exception(sprintf('%s: %s', $r->errcode, $r->errmsg));
+			if(empty($r->access_token))
+				throw new \Exception($this->t('Acess Token fetch error.'));
+		} catch (\Exception $e) {
+			$form_state->setErrorByName('corpid', $e->getMessage());
+			$form_state->setErrorByName('corpsecret');
+		}
 	}
 
 	/**
@@ -48,8 +87,11 @@ class SettingsForm extends ConfigFormBase {
 	public function submitForm(array &$form, FormStateInterface $form_state) {
 		$this->config('qyweixin')
 			->set('corpid', $form_state->getValue('corpid'))
+			->set('corpsecret', $form_state->getValue('corpsecret'))
+			->set('autosync', $form_state->getValue(array('users','autosync')))
 			->save();
 		parent::submitForm($form, $form_state);
 	}
+	
 }
 ?>
