@@ -1,0 +1,21 @@
+qyweixin.default_response_path:
+  path: '/qyweixin'
+  defaults:
+    _controller: '\Drupal\qyweixin\Controller\QyWeixinController::default'
+  requirements:
+    _access: TRUE
+
+qyweixin.app_response_path:
+  path: '/qyweixin/{qyweixin_app}'
+  defaults:
+    _controller: '\Drupal\qyweixin\Controller\QyWeixinController::default'
+  requirements:
+    _access: TRUE
+
+qyweixin.admin:
+  path: '/admin/config/services/qyweixin'
+  defaults:
+    _form: '\Drupal\qyweixin\Form\SettingsForm'
+    _title: 'Qiye Weixin Settings'
+  requirements:
+    _permission: 'administer site configuration'
