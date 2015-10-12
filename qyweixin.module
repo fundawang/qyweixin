@@ -20,7 +20,7 @@ function qyweixin_user_insert($entity) {
 			array('!user'=>$entity->getDisplayName())
 		);
 	} catch (\Exception $e) {
-		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+		\Drupal::logger('qyweixin')->error('Syncing information of !user into qyweixin failed: !errmsg.',
 			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
 		);
 	}
@@ -48,7 +48,7 @@ function qyweixin_user_update($entity) {
 			array('!user'=>$entity->getDisplayName())
 		);
 	} catch (\Exception $e) {
-		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+		\Drupal::logger('qyweixin')->error('Syncing information of !user into qyweixin failed: !errmsg.',
 			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
 		);
 	}
@@ -70,7 +70,7 @@ function qyweixin_user_predelete($entity) {
 			array('!user'=>$entity->getDisplayName())
 		);
 	} catch (\Exception $e) {
-		\Drupal::logger('qyweixin')->error('Synching information of !user into qyweixin failed: !errmsg.',
+		\Drupal::logger('qyweixin')->error('Syncing information of !user into qyweixin failed: !errmsg.',
 			array('!user'=>$entity->getDisplayName(), '!errmsg'=>$e->getMessage())
 		);
 	}
