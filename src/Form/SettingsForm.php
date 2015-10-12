@@ -25,14 +25,17 @@ class SettingsForm extends ConfigFormBase {
 	* {@inheritdoc}
 	*/
 	protected function getEditableConfigNames() {
-		return ['qyweixin'];
+		return ['qyweixin.general'];
 	}
 	
 	/**
 	* {@inheritdoc}
 	*/
 	public function buildForm(array $form, FormStateInterface $form_state) {
-		$default_setting=$this->config('qyweixin');
+		$default_setting=$this->config('qyweixin.general');
+		$state=\Drupal::state();
+		drupal_set_message($state->get('qyweixin.access_token'));
+		drupal_set_message($state->get('qyweixin.expires_in'));
 		$form['corpid']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('CorpID for Qiye Weixin'),
@@ -65,19 +68,25 @@ class SettingsForm extends ConfigFormBase {
 	*/
 	public function validateForm(array &$form, FormStateInterface $form_state) {
 		$client = \Drupal::httpClient();
-		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', $form_state->getValue('corpid'), $form_state->getValue('corpsecret'));
-		try {
-			$data = (string) \Drupal::httpClient()->get($url)->getBody();
-			$r=json_decode($data);
-			if(empty($r))
-				throw new \Exception(json_last_error_msg());
-			if(!empty($r->errcode))
-				throw new \Exception(sprintf('%s: %s', $r->errcode, $r->errmsg));
-			if(empty($r->access_token))
-				throw new \Exception($this->t('Acess Token fetch error.'));
-		} catch (\Exception $e) {
-			$form_state->setErrorByName('corpid', $e->getMessage());
-			$form_state->setErrorByName('corpsecret');
+		// Only do test if the settings are changed
+		if($this->config('qyweixin.general')->get('corpid')!=$form_state->getValue('corpid') || $this->config('qyweixin.general')->get('corpsecret')!=$form_state->getValue('corpsecret')) {
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', $form_state->getValue('corpid'), $form_state->getValue('corpsecret'));
+			try {
+				$data = (string) \Drupal::httpClient()->get($url)->getBody();
+				$r=json_decode($data);
+				if(empty($r))
+					throw new \Exception(json_last_error_msg());
+				if(!empty($r->errcode))
+					throw new \Exception(sprintf('%s: %s', $r->errcode, $r->errmsg));
+				if(empty($r->access_token))
+					throw new \Exception($this->t('Acess Token fetch error.'));
+				
+				// Save the access_token for permanant save in submit handler
+				$form_state->setStorage(['access_token'=>$r]);
+			} catch (\Exception $e) {
+				$form_state->setErrorByName('corpid', $e->getMessage());
+				$form_state->setErrorByName('corpsecret');
+			}
 		}
 	}
 
@@ -85,11 +94,21 @@ class SettingsForm extends ConfigFormBase {
 	* {@inheritdoc}
 	*/
 	public function submitForm(array &$form, FormStateInterface $form_state) {
-		$this->config('qyweixin')
+		// First save all the settings in conf
+		$this->config('qyweixin.general')
 			->set('corpid', $form_state->getValue('corpid'))
 			->set('corpsecret', $form_state->getValue('corpsecret'))
-			->set('autosync', $form_state->getValue(array('users','autosync')))
+			->set('autosync', $form_state->getValue(['users','autosync']))
 			->save();
+		
+		// Now let's save the access_token in state for later use
+		$r=$form_state->getStorage()['access_token'];
+		if($r) {
+			$state=\Drupal::state();
+			$state->set('qyweixin.access_token', $r->access_token);
+			$state->set('qyweixin.expires_in', $r->expires_in+time());
+		}
+		
 		parent::submitForm($form, $form_state);
 	}
 	
