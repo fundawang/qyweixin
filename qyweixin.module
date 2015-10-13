@@ -148,7 +148,6 @@ function qyweixin_user_role_update(\Drupal\user\RoleInterface $role) {
  */
 function qyweixin_user_role_predelete(\Drupal\user\RoleInterface $role) {
 	if(!\Drupal::config('qyweixin.general')->get('autosync')) return;
-	drupal_set_message($role->getThirdPartySetting('qyweixin','departmentid','NULL'));
 	try {
 		$access_token=\Drupal::state()->get('qyweixin.access_token');
 		if(empty($access_token)) throw new Exception('access_token of qyweixin is empty.');
