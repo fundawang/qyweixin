@@ -24,6 +24,7 @@ function qyweixin_user_insert(\Drupal\user\UserInterface $user) {
 		}
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !user has been added into qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -55,6 +56,7 @@ function qyweixin_user_update(\Drupal\user\UserInterface $user) {
 		$u->enable=$user->isActive();
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !user has been updated into qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -77,6 +79,7 @@ function qyweixin_user_predelete(\Drupal\user\UserInterface $user) {
 		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=%s&userid=%s', $access_token, $user->id());
 		$data = (string) \Drupal::httpClient()->get($url)->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !user has been deleted from qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -117,6 +120,7 @@ function qyweixin_user_role_insert(\Drupal\user\RoleInterface $role) {
 		$r->parentid='1';
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($r, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !role has been added into qyweixin.',
 			array('!role'=>$role->label())
@@ -144,6 +148,7 @@ function qyweixin_user_role_update(\Drupal\user\RoleInterface $role) {
 		$r->parentid='1';
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($r, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !role has been updated into qyweixin.',
 			array('!role'=>$role->label())
@@ -166,6 +171,7 @@ function qyweixin_user_role_predelete(\Drupal\user\RoleInterface $role) {
 		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=%s&id=%s', $access_token, $role->getThirdPartySetting('qyweixin','departmentid'));
 		$data = (string) \Drupal::httpClient()->get($url)->getBody();
 		$response=json_decode($data);
+		if(empty($response)) throw new Exception(json_last_error_msg());
 		if($response->errcode) throw new Exception($response->errmsg);
 		\Drupal::logger('qyweixin')->info('Information of !role has been deleted from qyweixin.',
 			array('!role'=>$role->label())
