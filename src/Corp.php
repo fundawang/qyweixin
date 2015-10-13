@@ -14,15 +14,15 @@ use Drupal\qyweixin\CorpInterface;
 
 class Corp {
 
-    /* Const for user gender */
+	/* Const for user gender */
 	const USER_GENDER_MALE=1;
 	const USER_GENDER_FEMALE=2;
 	
-    /* Const for user status */
+	/* Const for user status */
 	const USER_STATUS_ENABLED=1;
 	const USER_STATUS_DISABLED=0;
 	
-    /* Const for user subscribing status */
+	/* Const for user subscribing status */
 	const USER_SUBSCRIBE_STATUS_ALL=0;
 	const USER_SUBSCRIBE_STATUS_SUBSCRIBED=1;
 	const USER_SUBSCRIBE_STATUS_FREEZED=2;
@@ -145,7 +145,7 @@ class Corp {
 	 * @param string or array of strings $userid
 	 *   The user or users to push to qyweixin's contact book.
 	 *   if $user is a array, then massive deletion(user/batchdeleted) might be called, and each
-	 *      of the element should be a plain uid.
+	 *   of the element should be a plain uid.
 	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
 	 *
 	 */
@@ -294,10 +294,15 @@ class Corp {
 		}
 	}
 
-
 	/**
-	* {@inheritdoc}
-	*/
+	 * Wrapper of QyWeixin's department/update function.
+	 *
+	 * @param stdClass $department
+	 *   The department object you want to push qyweixin's database.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
 	public static function departmentUpdate($department) {
 		try {
 			$access_token=self::getAccessToken();
@@ -317,8 +322,14 @@ class Corp {
 	}
 
 	/**
-	* {@inheritdoc}
-	*/
+	 * Wrapper of QyWeixin's department/delete function.
+	 *
+	 * @param stdClass $department
+	 *   The department object you want to push qyweixin's database.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
 	public static function departmentDelete($departmentid) {
 		try {
 			$access_token=self::getAccessToken();
