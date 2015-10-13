@@ -1,4 +1,10 @@
 <?php
+
+use Drupal\user\Entity\Role;
+use Drupal\user\Entity\User;
+use Drupal\user\RoleInterface;
+use Drupal\user\UserInterface;
+
 /**
  * Implements hook_ENTITY_TYPE_insert for user entity type.
  */
@@ -13,6 +19,9 @@ function qyweixin_user_insert(\Drupal\user\UserInterface $user) {
 		$u->name=$user->getDisplayName();
 		$u->email=$user->getEmail();
 		$u->department=[1];
+		foreach(Role::loadMultiple($user->getRoles(TRUE)) as $role) {
+			$u->department[]=$role->getThirdPartySetting('qyweixin','departmentid');
+		}
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
 		if($response->errcode) throw new Exception($response->errmsg);
@@ -40,6 +49,9 @@ function qyweixin_user_update(\Drupal\user\UserInterface $user) {
 		$u->name=$user->getDisplayName();
 		$u->email=$user->getEmail();
 		$u->department=[1];
+		foreach(Role::loadMultiple($user->getRoles(TRUE)) as $role) {
+			$u->department[]=$role->getThirdPartySetting('qyweixin','departmentid');
+		}
 		$u->enable=$user->isActive();
 		$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 		$response=json_decode($data);
