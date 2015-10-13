@@ -9,6 +9,7 @@ namespace Drupal\qyweixin\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\qyweixin\Corp;
 
 /**
 * Configure settings of Qiye weixin 
@@ -66,7 +67,7 @@ class SettingsForm extends ConfigFormBase {
 	public function validateForm(array &$form, FormStateInterface $form_state) {
 		$client = \Drupal::httpClient();
 		// Only do test if the settings are changed
-		if(1 || $this->config('qyweixin.general')->get('corpid')!=$form_state->getValue('corpid') || $this->config('qyweixin.general')->get('corpsecret')!=$form_state->getValue('corpsecret')) {
+		if($this->config('qyweixin.general')->get('corpid')!=$form_state->getValue('corpid') || $this->config('qyweixin.general')->get('corpsecret')!=$form_state->getValue('corpsecret')) {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', $form_state->getValue('corpid'), $form_state->getValue('corpsecret'));
 			try {
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
@@ -77,9 +78,6 @@ class SettingsForm extends ConfigFormBase {
 					throw new \Exception(sprintf('%s: %s', $r->errcode, $r->errmsg));
 				if(empty($r->access_token))
 					throw new \Exception($this->t('Acess Token fetch error.'));
-				
-				// Save the access_token for permanant save in submit handler
-				$form_state->setStorage(['access_token'=>$r]);
 			} catch (\Exception $e) {
 				$form_state->setErrorByName('corpid', $e->getMessage());
 				$form_state->setErrorByName('corpsecret');
@@ -97,38 +95,6 @@ class SettingsForm extends ConfigFormBase {
 			->set('corpsecret', $form_state->getValue('corpsecret'))
 			->set('autosync', $form_state->getValue(['users','autosync']))
 			->save();
-		
-		// Now let's save the access_token in state for later use
-		$r=$form_state->getStorage()['access_token'];
-		if($r) {
-			$state=\Drupal::state();
-			$state->set('qyweixin.access_token', $r->access_token);
-			$state->set('qyweixin.access_token.expires_in', $r->expires_in+time());
-		}
-
-		// Save the maximum department id for later use when syncing depatments with roles.
-		$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=%s&id=1', \Drupal::state()->get('qyweixin.access_token'));
-		$max_department_id=1;
-		try {
-			$data=(string) \Drupal::httpClient()->get($url)->getBody();
-			$response=json_decode($data);
-			if(empty($response) || $response->errcode) throw new \Exception('Error fetching departments');
-			$max_department_id=1;
-			foreach($response->department as $d) {
-				if($d->id > $max_department_id) $max_department_id=$d->id;
-			}
-		} catch (\Exception $e) {
-			\Drupal::logger('qyweixin')->error('Fetching deparment list from qyweixin failed: !errmsg.',
-				array('!errmsg'=>$e->getMessage())
-			);
-		} finally {
-			\Drupal::state()->set('qyweixin.max_department_id', $max_department_id);
-			\Drupal::logger('qyweixin')->info('The maximum deparment id from qyweixin is !max_department_id.',
-				array('!max_department_id'=>$max_department_id)
-			);
-		}
-		parent::submitForm($form, $form_state);
 	}
-	
 }
 ?>
