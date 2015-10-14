@@ -93,6 +93,27 @@ class Corp {
 	}
 
 	/**
+	 * Wrapper of QyWeixin's user/authsucc function.
+	 *
+	 * @param string $userid
+	 *   The userid to set as auth succeeded.
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
+	public static function userAuthSucc($userid) {
+		try {
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/authsucc?access_token=%s&userid=%s', $access_token, $userid);
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+	}
+
+	/**
 	 * Wrapper of QyWeixin's user/create function.
 	 *
 	 * @param stdClass $user
