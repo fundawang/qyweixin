@@ -127,7 +127,7 @@ Class AgentBase extends ConfigEntityBase implements AgentInterface {
 	 *	$a->messageSend($body);
 	 *
 	 * @param stdClass body
-	 *   body as what qyweixin requires, except that the agentid which will filled automatically.
+	 *   body as what qyweixin requires, except that the agentid which will be filled automatically.
 	 * @return this
 	 */
 	public function messageSend($body) {
