@@ -81,8 +81,8 @@ class Corp {
 					throw new \Exception(json_last_error_msg(), json_last_error());
 				if(!empty($r->errcode))
 					throw new \Exception($r->errmsg, $response->errcode);
-				\Drupal:state()->set('qyweixin.access_token', $r->access_token);
-				\Drupal:state()->set('qyweixin.access_token.expires_in', $r->expires_in+time());
+				\Drupal::state()->set('qyweixin.access_token', $r->access_token);
+				\Drupal::state()->set('qyweixin.access_token.expires_in', $r->expires_in+time());
 				self::$access_token=$r->access_token;
 				self::$access_token_expires_in=$r->expires_in+time();
 			} catch (\Exception $e) {
@@ -135,7 +135,7 @@ class Corp {
 			$u->name=$user->name;
 			$u->email=$user->email;
 			$u->department=$user->department;
-			$u->enable=$user->isActive;
+			$u->enable=$user->enable;
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
 			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());

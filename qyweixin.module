@@ -51,7 +51,7 @@ function qyweixin_user_update(Drupal\user\UserInterface $user) {
 		
 		Corp::userUpdate($u);
 		
-		Drupal::logger('qyweixin')->info('User !user has been updated into qyweixin.',
+		Drupal::logger('qyweixin')->info('User !user has been updated in qyweixin.',
 			array('!user'=>$user->getDisplayName())
 		);
 	} catch (Exception $e) {
@@ -62,9 +62,9 @@ function qyweixin_user_update(Drupal\user\UserInterface $user) {
 }
 
 /**
- * Implements hook_ENTITY_TYPE_predelete for user entity type.
+ * Implements hook_ENTITY_TYPE_delete for user entity type.
  */
-function qyweixin_user_predelete(Drupal\user\UserInterface $user) {
+function qyweixin_user_delete(Drupal\user\UserInterface $user) {
 	if(!Drupal::config('qyweixin.general')->get('autosync')) return;
 	try {
 		Corp::userDelete($user->id());
@@ -146,23 +146,46 @@ function qyweixin_user_role_predelete(Drupal\user\RoleInterface $role) {
 	if(!Drupal::config('qyweixin.general')->get('autosync')) return;
 	try {
 		// First lets remove the role from related users
-		// TODO: this may be a long time operation, so should be re-impleneted via batch API.
 		$userlist=Corp::userSimpleList($role->getThirdPartySetting('qyweixin','departmentid'), TRUE, Corp::USER_SUBSCRIBE_STATUS_ALL);
-		foreach($userlist as $user) {
+		$i=0;
+		
+		// If lets then 5 users are affeted, then we just update it here.
+		while($i<5 && count($userlist)) {
+			$user=array_shift($userlist);
 			$user->department=array_diff($user->department, [$role->getThirdPartySetting('qyweixin','departmentid')]);
 			Corp::userUpdate($user);
-			Drupal::logger('qyweixin')->info('Department of user !user has been updated because of !role is to be removed.',
-				array('!user'=>$user->getDisplayName(), '!role'=>$role->label())
+			Drupal::logger('qyweixin')->info('User !user has been updated in qyweixin due to !role to be deleted.',
+				array('!user'=>$user->name, '!role'=>$role->label())
 			);
+			$i++;
 		}
 		
-		Corp::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
-
-		Drupal::logger('qyweixin')->info('Role !role as of department has been deleted from qyweixin.',
-			array('!role'=>$role->label())
-		);
+		// If after 5 users be updated, there are still users to be proceeded, then we push them into cron queue.
+		if(count($userlist)) {
+			$queue=Drupal::queue('qyweixin_remove_department_from_user', TRUE);
+			$i=0;
+			foreach ($userlist as $user) {
+				$i++;
+				$queue->createItem(['user'=>$user, 'role'=>$role]);
+			}
+			$queue->createItem(['user'=>NULL, 'role'=>$role]);
+			Drupal::logger('qyweixin')->info('!num users in department is to be updated later in cron because of !role is to be removed.',
+				array('!num'=>$i)
+			);
+		} else {
+			Corp::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
+			Drupal::logger('qyweixin')->info('Role !role as of department has been deleted from qyweixin.',
+				array('!role'=>$role->label())
+			);
+		}
 	} catch (Exception $e) {
-		throw new Exception($e->getMessage(), $e->getCode());
+		if($e->getCode()==60003)
+			Drupal::logger('qyweixin')->warning('Role !role as of department does not exist in qyweixin, so it cannot be deleted.',
+				array('!role'=>$role->label())
+			);
+		else
+			throw new Exception($e->getMessage(), $e->getCode());
 	}
 }
+
 ?>
