@@ -13,6 +13,15 @@ use Drupal\qyweixin\AgentInterface;
 
 /**
  * Defines the qyweixin agent entity class.
+ * Usage:
+	$a=new AgentBase(['agentid'=>14, 'id'=>'foo']);
+	$body=new \stdClass();
+	$body->touser='1';
+	$body->msgtype='text';
+	$body->text=new \stdClass();
+	$body->text->content='Hello world';
+	$a->messageSend($body);
+ *	
  *
  * @ConfigEntityType(
  *   id = "qywexin_agent",
@@ -20,7 +29,7 @@ use Drupal\qyweixin\AgentInterface;
  *   admin_permission = "administer permissions",
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "label",
+ *     "agentid" = "agentid"
  *   },
  *   config_export = {
  *     "id",

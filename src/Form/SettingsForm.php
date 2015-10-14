@@ -34,16 +34,6 @@ class SettingsForm extends ConfigFormBase {
 	* {@inheritdoc}
 	*/
 	public function buildForm(array $form, FormStateInterface $form_state) {
-		/*
-		$a=new AgentBase(['agentid'=>14, 'id'=>'library']);
-		$body=new \stdClass();
-		$body->touser='TYX061';
-		$body->msgtype='text';
-		$body->text=new \stdClass();
-		$body->text->content='Hello';
-		$a->messageSend($body);
-		*/
-		
 		$default_setting=$this->config('qyweixin.general');
 		$form['corpid']=array(
 			'#type' => 'textfield',
