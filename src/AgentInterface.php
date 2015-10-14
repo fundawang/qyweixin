@@ -21,10 +21,7 @@ interface AgentInterface extends ConfigEntityInterface {
 	public function getEncodingAesKey();
 	public function setEncodingAesKey($key='');
 	
-	public function getAgent();
 	public function agentGet();
-	
-	public function setAgent($agent);
 	public function agentSet($agent);
 	
 	public function messageSend($body);
