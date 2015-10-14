@@ -66,7 +66,11 @@ class Corp {
 	 *   The access_token return by Tencent qyweixin interface
 	 */
 	protected static function getAccessToken() {
-		if(empty($access_token) || empty($access_token_expired_in) || self::$access_token_expires_in-5>=time()) {
+		if(empty(self::$corpid)) self::$corpid=\Drupal::config('qyweixin.general')->get('corpid');
+		if(empty(self::$corpsecret)) self::$corpsecret=\Drupal::config('qyweixin.general')->get('corpsecret');
+		if(empty(self::$access_token)) self::$access_token=\Drupal::state()->get('qyweixin.access_token');
+		if(empty(self::$access_token_expires_in)) self::$access_token_expires_in=\Drupal::state()->get('qyweixin.access_token.expires_in');
+		if(empty(self::$access_token) || empty(self::$access_token_expired_in) || self::$access_token_expires_in-5>=time()) {
 			self::$corpid=\Drupal::config('qyweixin.general')->get('corpid');
 			self::$corpsecret=\Drupal::config('qyweixin.general')->get('corpsecret');
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', self::$corpid, self::$corpsecret);
@@ -77,6 +81,8 @@ class Corp {
 					throw new \Exception(json_last_error_msg(), json_last_error());
 				if(!empty($r->errcode))
 					throw new \Exception($r->errmsg, $response->errcode);
+				\Drupal:state()->set('qyweixin.access_token', $r->access_token);
+				\Drupal:state()->set('qyweixin.access_token.expires_in', $r->expires_in+time());
 				self::$access_token=$r->access_token;
 				self::$access_token_expires_in=$r->expires_in+time();
 			} catch (\Exception $e) {
