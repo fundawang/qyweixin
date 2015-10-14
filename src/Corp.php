@@ -224,6 +224,32 @@ class Corp {
 	}
 
 	/**
+	 * Wrapper of QyWeixin's user/getuserinfo function.
+	 *
+	 * @param string code
+	 *   The code returned by Tecent server, which could be used to retreive the userid.
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 * @return stdClass
+	 *   The user object retured by Tencent qyweixin interface.
+	 */
+	public static function userGetUserInfo($code) {
+		try {
+			response=new \stdClass();
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s', $access_token, $code);
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $response;
+		}
+	}
+
+	/**
 	 * Wrapper of QyWeixin's user/simplelist function.
 	 *
 	 * @param int $departmentid
@@ -246,7 +272,6 @@ class Corp {
 			$access_token=self::getAccessToken();
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=%s&department_id=%s&fetch_child=%s&status=%s',
 			$access_token, $departmentid, (int)$fetch_child, (int)$status);
-			var_dump($url); 
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
 			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
