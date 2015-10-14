@@ -10,7 +10,6 @@ namespace Drupal\qyweixin;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\qyweixin\CorpInterface;
 
 class Corp {
 
@@ -235,7 +234,7 @@ class Corp {
 	 */
 	public static function userGetUserInfo($code) {
 		try {
-			response=new \stdClass();
+			$response=new \stdClass();
 			$access_token=self::getAccessToken();
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s', $access_token, $code);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
@@ -394,4 +393,30 @@ class Corp {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
 	}
+	
+	/**
+	 * Wrapper of QyWeixin's agent/list function.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 * @return array of stdClass
+	 *   The agentlist objects retured by Tencent qyweixin interface.
+	 */
+	public static function agentList() {
+		$ret=[];
+		try {
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/list?access_token=%s', $access_token);
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			$ret=$response->agentlist;
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $ret;
+		}
+	}
+	
 }
