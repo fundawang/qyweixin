@@ -10,6 +10,7 @@ namespace Drupal\qyweixin\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\qyweixin\Corp;
+use Drupal\qyweixin\Entity\AgentBase;
 
 /**
 * Configure settings of Qiye weixin 
@@ -33,6 +34,16 @@ class SettingsForm extends ConfigFormBase {
 	* {@inheritdoc}
 	*/
 	public function buildForm(array $form, FormStateInterface $form_state) {
+		/*
+		$a=new AgentBase(['agentid'=>14, 'id'=>'library']);
+		$body=new \stdClass();
+		$body->touser='TYX061';
+		$body->msgtype='text';
+		$body->text=new \stdClass();
+		$body->text->content='Hello';
+		$a->messageSend($body);
+		*/
+		
 		$default_setting=$this->config('qyweixin.general');
 		$form['corpid']=array(
 			'#type' => 'textfield',

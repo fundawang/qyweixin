@@ -64,7 +64,7 @@ class Corp {
 	 * @return string
 	 *   The access_token return by Tencent qyweixin interface
 	 */
-	protected static function getAccessToken() {
+	public static function getAccessToken() {
 		if(empty(self::$corpid)) self::$corpid=\Drupal::config('qyweixin.general')->get('corpid');
 		if(empty(self::$corpsecret)) self::$corpsecret=\Drupal::config('qyweixin.general')->get('corpsecret');
 		if(empty(self::$access_token)) self::$access_token=\Drupal::state()->get('qyweixin.access_token');
