@@ -419,4 +419,8 @@ class CorpBase {
 		}
 	}
 	
+	public static function verifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr, $token, $encodingAesKey) {
+		
+	}
+	
 }
