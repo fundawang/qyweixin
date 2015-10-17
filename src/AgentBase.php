@@ -178,7 +178,11 @@ class AgentBase extends PluginBase implements AgentInterface {
 		try {
 			$ret=new \stdClass();
 			$access_token=CorpBase::getAccessToken();
+			$body=new \stdClass();
+			$body->type=$type;
 			$body->agentid=$this->agentId;
+			$body->offset=$offset;
+			$body->count=$count;
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/batchget?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($body, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
