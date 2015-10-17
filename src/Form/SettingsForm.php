@@ -9,8 +9,8 @@ namespace Drupal\qyweixin\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\qyweixin\Corp;
-use Drupal\qyweixin\Entity\AgentBase;
+use Drupal\qyweixin\CorpBase;
+use Drupal\qyweixin\AgentBase;
 
 /**
 * Configure settings of Qiye weixin 

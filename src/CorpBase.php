@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\qyweixin\Entity\Corp.
+ * Contains \Drupal\qyweixin\Entity\CorpBase.
  */
 
 namespace Drupal\qyweixin;
@@ -11,7 +11,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 
-class Corp {
+class CorpBase {
 
 	/* Const for user gender */
 	const USER_GENDER_MALE=1;

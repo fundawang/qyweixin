@@ -9,6 +9,7 @@ namespace Drupal\qyweixin;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\qyweixin\CorpBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -86,7 +87,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	public function calculateDependencies() {
 		return array();
 	}
-
+	
 	/**
 	 * Retreive agent settings from qyweixin server
 	 *
@@ -97,7 +98,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 		if(empty($this->agentId)) return FALSE;
 		$ret=FALSE;
 		try {
-			$access_token=\Drupal\qyweixin\Corp::getAccessToken();
+			$access_token=CorpBase::getAccessToken();
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/get?access_token=%s&agentid=%s', $access_token, $this->agentId);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
@@ -124,7 +125,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	public function agentSet($agent) {
 		if(empty($this->agentId)) return FALSE;
 		try {
-			$access_token=\Drupal\qyweixin\Corp::getAccessToken();
+			$access_token=CorpBase::getAccessToken();
 			$agent->agentid=$this->agentId;
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/set?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($agent, JSON_UNESCAPED_UNICODE)])->getBody();
@@ -148,7 +149,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	public function messageSend($body) {
 		try {
 			if(empty($body) || !is_object($body)) return $this;
-			$access_token=\Drupal\qyweixin\Corp::getAccessToken();
+			$access_token=CorpBase::getAccessToken();
 			$body->agentid=$this->agentId;
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($body, JSON_UNESCAPED_UNICODE)])->getBody();
@@ -176,7 +177,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	public function materialBatchGet($type=MATERIAL_TYPE_IMAGE, $offset=0, $count=10) {
 		try {
 			$ret=new \stdClass();
-			$access_token=\Drupal\qyweixin\Corp::getAccessToken();
+			$access_token=CorpBase::getAccessToken();
 			$body->agentid=$this->agentId;
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/batchget?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($body, JSON_UNESCAPED_UNICODE)])->getBody();
