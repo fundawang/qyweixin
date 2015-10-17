@@ -4,7 +4,7 @@ use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\RoleInterface;
 use Drupal\user\UserInterface;
-use Drupal\qyweixin\Corp;
+use Drupal\qyweixin\CorpBase;
 
 /**
  * Implements hook_ENTITY_TYPE_insert for user entity type.
@@ -21,7 +21,7 @@ function qyweixin_user_insert(Drupal\user\UserInterface $user) {
 			$u->department[]=$role->getThirdPartySetting('qyweixin','departmentid');
 		}
 		
-		Corp::userCreate($u);
+		CorpBase::userCreate($u);
 		
 		Drupal::logger('qyweixin')->info('User !user has been added into qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -49,7 +49,7 @@ function qyweixin_user_update(Drupal\user\UserInterface $user) {
 		}
 		$u->enable=$user->isActive();
 		
-		Corp::userUpdate($u);
+		CorpBase::userUpdate($u);
 		
 		Drupal::logger('qyweixin')->info('User !user has been updated in qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -67,7 +67,7 @@ function qyweixin_user_update(Drupal\user\UserInterface $user) {
 function qyweixin_user_delete(Drupal\user\UserInterface $user) {
 	if(!Drupal::config('qyweixin.general')->get('autosync')) return;
 	try {
-		Corp::userDelete($user->id());
+		CorpBase::userDelete($user->id());
 		
 		Drupal::logger('qyweixin')->info('User !user has been deleted from qyweixin.',
 			array('!user'=>$user->getDisplayName())
@@ -103,7 +103,7 @@ function qyweixin_user_role_insert(Drupal\user\RoleInterface $role) {
 		$r->order=$role->getWeight();
 		$r->parentid='1';
 		
-		Corp::departmentCreate($r);
+		CorpBase::departmentCreate($r);
 
 		Drupal::logger('qyweixin')->info('Role !role as of department has been added into qyweixin.',
 			array('!role'=>$role->label())
@@ -127,7 +127,7 @@ function qyweixin_user_role_update(Drupal\user\RoleInterface $role) {
 		$r->order=$role->getWeight();
 		$r->parentid='1';
 		
-		Corp::departmentUpdate($r);
+		CorpBase::departmentUpdate($r);
 
 		Drupal::logger('qyweixin')->info('Role !role as of department has been updated into qyweixin.',
 			array('!role'=>$role->label())
@@ -146,14 +146,14 @@ function qyweixin_user_role_predelete(Drupal\user\RoleInterface $role) {
 	if(!Drupal::config('qyweixin.general')->get('autosync')) return;
 	try {
 		// First lets remove the role from related users
-		$userlist=Corp::userSimpleList($role->getThirdPartySetting('qyweixin','departmentid'), TRUE, Corp::USER_SUBSCRIBE_STATUS_ALL);
+		$userlist=CorpBase::userSimpleList($role->getThirdPartySetting('qyweixin','departmentid'), TRUE, CorpBase::USER_SUBSCRIBE_STATUS_ALL);
 		$i=0;
 		
 		// If lets then 5 users are affeted, then we just update it here.
 		while($i<5 && count($userlist)) {
 			$user=array_shift($userlist);
 			$user->department=array_diff($user->department, [$role->getThirdPartySetting('qyweixin','departmentid')]);
-			Corp::userUpdate($user);
+			CorpBase::userUpdate($user);
 			Drupal::logger('qyweixin')->info('User !user has been updated in qyweixin due to !role to be deleted.',
 				array('!user'=>$user->name, '!role'=>$role->label())
 			);
@@ -173,7 +173,7 @@ function qyweixin_user_role_predelete(Drupal\user\RoleInterface $role) {
 				array('!num'=>$i)
 			);
 		} else {
-			Corp::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
+			CorpBase::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
 			Drupal::logger('qyweixin')->info('Role !role as of department has been deleted from qyweixin.',
 				array('!role'=>$role->label())
 			);
