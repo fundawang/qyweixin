@@ -10,6 +10,7 @@ namespace Drupal\qyweixin;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\qyweixin\lib\WXBizMsgCrypt;
 
 class CorpBase {
 
@@ -420,7 +421,26 @@ class CorpBase {
 	}
 	
 	public static function verifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr, $token, $encodingAesKey) {
-		
+		$wxcpt = new WXBizMsgCrypt($token, $encodingAesKey, self::$corpid);
+		$errCode = $wxcpt->VerifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr);
+		return $errCode;
 	}
 	
+	public static function decryptMsg($sReqMsgSig, $sReqTimeStamp, $sReqNonce, $sReqData, $token, $encodingAesKey) {
+		$sMsg='';
+		$wxcpt = new WXBizMsgCrypt($token, $encodingAesKey, self::$corpid);
+		$errCode = $wxcpt->DecryptMsg($sReqMsgSig, $sReqTimeStamp, $sReqNonce, $sReqData, $sMsg);
+		if($errCode) 
+			throw new \Exception('Decrypt error', $errCode);
+		else return $sMsg;
+	}
+	
+	public static function encryptMsg($sRespData, $sReqTimeStamp, $sReqNonce, $token, $encodingAesKey) {
+		$sEncryptMsg='';
+		$wxcpt = new WXBizMsgCrypt($token, $encodingAesKey, self::$corpid);
+		$errCode = $wxcpt->EncryptMsg($sRespData, $sReqTimeStamp, $sReqNonce, $sEncryptMsg);
+		if($errCode) 
+			throw new \Exception('Encrypt error', $errCode);
+		else return $sEncryptMsg;
+	}
 }
