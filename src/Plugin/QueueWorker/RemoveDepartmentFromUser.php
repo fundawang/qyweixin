@@ -8,7 +8,7 @@
 namespace Drupal\qyweixin\Plugin\QueueWorker;
 
 use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\qyweixin\Corp;
+use Drupal\qyweixin\CorpBase;
 
 /**
  * Remove Department from qyweixin's user.
