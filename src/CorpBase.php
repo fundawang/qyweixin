@@ -2,14 +2,11 @@
 
 /**
  * @file
- * Contains \Drupal\qyweixin\Entity\CorpBase.
+ * Contains \Drupal\qyweixin\CorpBase.
  */
 
 namespace Drupal\qyweixin;
 
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\qyweixin\lib\WXBizMsgCrypt;
 
 class CorpBase {
