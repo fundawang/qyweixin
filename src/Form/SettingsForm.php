@@ -38,12 +38,14 @@ class SettingsForm extends ConfigFormBase {
 		$form['corpid']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('CorpID for Qiye Weixin'),
+			'#size' => 25,
 			'#default_value' => empty($default_setting->get('corpid'))?'':$default_setting->get('corpid'),
 			'#required' => TRUE,
 		);
 		$form['corpsecret']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('Corp Secret for Qiye Weixin'),
+			'#size' => 80,
 			'#description' => $this->t('Please note that, we only support one manage group per site now.'),
 			'#default_value' => empty($default_setting->get('corpsecret'))?'':$default_setting->get('corpsecret'),
 			'#required' => TRUE,
@@ -96,6 +98,8 @@ class SettingsForm extends ConfigFormBase {
 			->set('corpsecret', $form_state->getValue('corpsecret'))
 			->set('autosync', $form_state->getValue(['users','autosync']))
 			->save();
+		
+		parent::submitForm($form, $form_state);
 	}
 }
 ?>
