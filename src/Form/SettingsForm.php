@@ -65,12 +65,23 @@ class SettingsForm extends ConfigFormBase {
 		
 		$plugins=\Drupal::service('plugin.manager.qyweixin.agent')->getDefinitions();
 		$form_state->setStorage($plugins);
+		try {
+			$agents=CorpBase::agentList();
+			foreach($agents as $agent) {
+				$options[$agent->agentid]=$agent->name;
+			}
+			$type='select';
+		} catch (\Exception $e) {
+			$type='number';
+			$options='';
+		}
 		foreach($plugins as $plugin=>$settings) {
 			$p=\Drupal::service('plugin.manager.qyweixin.agent')->createInstance($plugin, $default_setting->get('plugin.agentid.'.$plugin));
 			$form[$plugin]=['#tree'=>TRUE];
 			$form[$plugin]['agentId']=array(
-				'#type' => 'number',
+				'#type' => $type,
 				'#min' => 1,
+				'#options'=>$options,
 				'#title' => $this->t('AgentID for app !name', ['!name'=>$plugin]),
 				'#default_value' => empty($default_setting->get('plugin.agentid.'.$plugin)['agentId'])?'1':$default_setting->get('plugin.agentid.'.$plugin)['agentId'],
 				'#required' => TRUE,
