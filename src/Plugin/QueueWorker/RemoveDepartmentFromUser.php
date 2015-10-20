@@ -29,17 +29,17 @@ class RemoveDepartmentFromUser extends QueueWorkerBase {
 	$role=$item['role'];
 	try {
 		if(empty($user)) {
-			Corp::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
+			CorpBase::departmentDelete($role->getThirdPartySetting('qyweixin','departmentid'));
 			\Drupal::logger('qyweixin')->info('Role !role as of department has been deleted from qyweixin.',
 				array('!role'=>$role->label())
 			);
 		}
 		else {
 			$user->department=array_diff($user->department, [$role->getThirdPartySetting('qyweixin','departmentid')]);
-			Corp::userUpdate($user);
+			CorpBase::userUpdate($user);
 		}
 	} catch (\Exception $e)	{
-		Drupal::logger('qyweixin')->error('Syncing information of !role into qyweixin failed: !errcode: !errmsg.',
+		\Drupal::logger('qyweixin')->error('Syncing information of !role into qyweixin failed: !errcode: !errmsg.',
 			array('!role'=>$role->label(), '!errcode'=>$e->getCode(), '!errmsg'=>$e->getMessage())
 		);
 	}
