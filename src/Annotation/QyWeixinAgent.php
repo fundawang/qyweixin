@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\qyweixin\Annotation\QyWeixinAgentAnnotationBase.
+ * Contains \Drupal\qyweixin\Annotation\QyWeixinAgent.
  */
 
 namespace Drupal\qyweixin\Annotation;
@@ -16,7 +16,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * @Annotation
  */
-class QyWeixinAgentAnnotationBase extends Plugin {
+class QyWeixinAgent extends Plugin {
 
   /**
    * The plugin ID.
