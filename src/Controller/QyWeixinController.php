@@ -10,6 +10,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Controller routines for qyweixin routes.
@@ -20,9 +21,9 @@ class QyWeixinController extends ControllerBase {
 			// We just skip the verify step with echostr returned at mean time, because we will be using same url /qyweixin as unified entry for all agents.
 			if(!empty($request->get('msg_signature')) && !empty($request->get('timestamp')) && !empty($request->get('nonce')) && !empty($request->get('echostr')))
 				return new Response($request->get('echostr'));
-			else return new Response('', Response::HTTP_FORBIDDEN);
+			else throw new AccessDeniedHttpException();
 		} else 
-			return new Response('', Response::HTTP_FORBIDDEN);
+			 throw new AccessDeniedHttpException();
 	}
 }
 
