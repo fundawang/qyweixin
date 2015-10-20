@@ -417,8 +417,9 @@ class CorpBase {
 		}
 	}
 	
-	public static function verifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr, $token, $encodingAesKey) {
+	public static function verifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $token, $encodingAesKey) {
 		$wxcpt = new WXBizMsgCrypt($token, $encodingAesKey, self::$corpid);
+		$sEchoStr='';
 		$errCode = $wxcpt->VerifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr);
 		return $errCode;
 	}
