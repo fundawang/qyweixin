@@ -9,6 +9,7 @@ namespace Drupal\qyweixin;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\qyweixin\CorpBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -42,7 +43,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 			'agentId' => $this->agentId,
 			'token' => $this->token,
 			'encodingAesKey' => $this->encodingAesKey,
-			'data' => $this->configuration,
+			'data' => $this->configuration
 		);
 	}
 	
@@ -50,9 +51,21 @@ class AgentBase extends PluginBase implements AgentInterface {
 	* {@inheritdoc}
 	*/
 	public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+		$configuration+=\Drupal::config('qyweixin.general')->get('plugin.agentid.'.$plugin_definition['id']);
 		parent::__construct($configuration, $plugin_id, $plugin_definition);
-
+		$configuration['data']=$configuration;
 		$this->setConfiguration($configuration);
+	}
+
+	/**
+	* {@inheritdoc}
+	*/
+	public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+		return new static(
+			$configuration,
+			$plugin_id,
+			$plugin_definition
+		);
 	}
 
 	/**
@@ -86,6 +99,18 @@ class AgentBase extends PluginBase implements AgentInterface {
 	public function calculateDependencies() {
 		return array();
 	}
+	
+	/**
+	* {@inheritdoc}
+	*/
+	public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+		foreach($form_state->getValues() as $key => $value) {
+			$this->configuration[$key]=$value;
+		}
+	}
+	
+	public function buildConfigurationForm(array $form, FormStateInterface $form_state) {}
+	public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
 	
 	/**
 	 * Retreive agent settings from qyweixin server

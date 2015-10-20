@@ -9,14 +9,14 @@ namespace Drupal\qyweixin;
 
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\qywexin\Corp;
+use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
  * Defines the interface for QiyeWeixin Agents.
  *
  * @see plugin_api
  */
-interface AgentInterface extends PluginInspectionInterface, ConfigurablePluginInterface {
+interface AgentInterface extends PluginInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
 	const MATERIAL_TYPE_MPNEWS='mpnews';
 	const MATERIAL_TYPE_IMAGE='image';
 	const MATERIAL_TYPE_VOICE='voice';

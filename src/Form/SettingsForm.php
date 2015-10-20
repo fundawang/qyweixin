@@ -8,6 +8,7 @@
 namespace Drupal\qyweixin\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\qyweixin\CorpBase;
 use Drupal\qyweixin\AgentBase;
@@ -61,6 +62,21 @@ class SettingsForm extends ConfigFormBase {
 			'#description' => $this->t('Automatically add/remove/modify users in qyweixin, according to local user database. Roles will become departments.'),
 			'#default_value' => empty($default_setting->get('autosync'))?'':$default_setting->get('autosync'),
 		);
+		
+		$plugins=\Drupal::service('plugin.manager.qyweixin.agent')->getDefinitions();
+		$form_state->setStorage($plugins);
+		foreach($plugins as $plugin=>$settings) {
+			$p=\Drupal::service('plugin.manager.qyweixin.agent')->createInstance($plugin, $default_setting->get('plugin.agentid.'.$plugin));
+			$form[$plugin]=['#tree'=>TRUE];
+			$form[$plugin]['agentId']=array(
+				'#type' => 'number',
+				'#min' => 1,
+				'#title' => $this->t('AgentID for app !name', ['!name'=>$plugin]),
+				'#default_value' => empty($default_setting->get('plugin.agentid.'.$plugin)['agentId'])?'1':$default_setting->get('plugin.agentid.'.$plugin)['agentId'],
+				'#required' => TRUE,
+			);
+			$form[$plugin]+=$p->buildConfigurationForm(array(), $form_state);
+		}
 		return parent::buildForm($form, $form_state);
 	}
 
@@ -98,6 +114,16 @@ class SettingsForm extends ConfigFormBase {
 			->set('corpsecret', $form_state->getValue('corpsecret'))
 			->set('autosync', $form_state->getValue(['users','autosync']))
 			->save();
+		
+		$plugins=$form_state->getStorage();
+		foreach($plugins as $plugin=>$settings) {
+			$this->config('qyweixin.general')
+				->set('plugin.agentid.'.$plugin, $form_state->getValue($plugin))
+				->save();
+			$data=(new FormState())->setValues($form_state->getValue($plugin));
+			\Drupal::service('plugin.manager.qyweixin.agent')->createInstance($plugin, $this->config('qyweixin.general')->get('plugin.agentid.'.$plugin))
+				->submitConfigurationForm($form, $data);
+		}
 		
 		parent::submitForm($form, $form_state);
 	}
