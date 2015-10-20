@@ -53,7 +53,6 @@ class AgentBase extends PluginBase implements AgentInterface {
 		parent::__construct($configuration, $plugin_id, $plugin_definition);
 
 		$this->setConfiguration($configuration);
-		$this->logger = $logger;
 	}
 
 	/**
