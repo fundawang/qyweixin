@@ -1,0 +1,26 @@
+<?php
+/**
+ * Implements hook_requirements().
+ */
+function qyweixin_requirements($phase) {
+	$requirements = [];
+	if($phase=='install') {
+		if (!defined('MCRYPT_ENCRYPT')) {
+			$requirements['mcrypt']=array(
+				'title' => 'mcrypt',
+				'description' => t('mcrypt extension must be exist for this module to install.'),
+				'severity' => REQUIREMENT_ERROR,
+			);
+		}
+		if (!defined('XML_DOCUMENT_NODE')) {
+			$requirements['libxml']=array(
+				'title' => 'libxml',
+				'description' => t('libxml extension must be exist for this module to install.'),
+				'severity' => REQUIREMENT_ERROR,
+			);
+		}
+		if(!empty($requirements))
+			return $requirements;
+	}
+}
+?>
