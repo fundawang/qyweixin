@@ -92,9 +92,10 @@ class SettingsForm extends ConfigFormBase {
 			);
 			$form['agents'][$agent->agentid]['entryclass']=array(
 				'#type'=>'select',
-				'#title' => t('Callback class'),
+				'#title' => t('Entry class'),
 				'#options' => $plugins_select,
 				'#default_value' => $config->get('agent.'.$agent->agentid.'.entryclass'),
+				'#description' => t('Please note that only 1-to-1 mapping between entryclass and agentid is supported. So you cannot set ONE entry class for multiple agents.'),
 				'#states' => array(
 					'visible' => array(
 						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
