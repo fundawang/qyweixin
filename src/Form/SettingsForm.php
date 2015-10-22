@@ -156,6 +156,16 @@ class SettingsForm extends ConfigFormBase {
 				$form_state->setErrorByName('corpsecret');
 			}
 		}
+		
+		// Only 1-to-1 entryclass vs agentis is allowed now.
+		foreach($form_state->getValue('agents') as $agentid=>$settings) {
+			foreach($form_state->getValue('agents') as $id=>$sets) {
+				if($agentid<>$id && $settings['responsible'] && $sets['responsible'] && $settings['entryclass']==$sets['entryclass']) {
+					$form_state->setErrorByName('agents]['.$agentid.'][entryclass', t('Entry class overlapped.'));
+					$form_state->setErrorByName('agents]['.$id.'][entryclass');
+				}
+			}
+		}
 	}
 
 	/**
@@ -172,10 +182,10 @@ class SettingsForm extends ConfigFormBase {
 		// Then save the mapping of agentid and entryclass
 		foreach($form_state->getValue('agents') as $agentid=>$settings) {
 			$this->config('qyweixin.general')
+				->clear('agent.'.$agentid)
 				->set('agent.'.$agentid.'.enabled', $settings['responsible'])->save();
 			if($settings['responsible'])
 				$this->config('qyweixin.general')
-					->clear('agent.'.$agentid)
 					->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
 					->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
 					->set('agent.'.$agentid.'.encodingaeskey', $settings['encodingaeskey'])
