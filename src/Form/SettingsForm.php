@@ -172,11 +172,13 @@ class SettingsForm extends ConfigFormBase {
 		// Then save the mapping of agentid and entryclass
 		foreach($form_state->getValue('agents') as $agentid=>$settings) {
 			$this->config('qyweixin.general')
-				->set('agent.'.$agentid.'.enabled', $settings['responsible'])
-				->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
-				->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
-				->set('agent.'.$agentid.'.encodingaeskey', $settings['encodingaeskey'])
-				->set('plugin.'.$settings['entryclass'].'agentid', $agentid)
+				->set('agent.'.$agentid.'.enabled', $settings['responsible'])->save();
+			if($settings['responsible'])
+				$this->config('qyweixin.general')
+					->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
+					->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
+					->set('agent.'.$agentid.'.encodingaeskey', $settings['encodingaeskey'])
+					->set('plugin.'.$settings['entryclass'].'.agentid', $agentid)
 				->save();
 		}
 		
