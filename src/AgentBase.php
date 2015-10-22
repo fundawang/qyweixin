@@ -10,8 +10,8 @@ namespace Drupal\qyweixin;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\qyweixin\CorpBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\qyweixin\CorpBase;
 
 /**
  * Provides a base class for QiyeWeixin Agent.
@@ -51,7 +51,11 @@ class AgentBase extends PluginBase implements AgentInterface {
 	* {@inheritdoc}
 	*/
 	public function __construct(array $configuration, $plugin_id, $plugin_definition) {
-		$configuration+=\Drupal::config('qyweixin.general')->get('plugin.agentid.'.$plugin_definition['id']);
+		$configuration+=['agentId'=>\Drupal::config('qyweixin.general')->get('plugin.'.$plugin_id.'.agentid')];
+		$configuration+=array(
+			'token'=>\Drupal::config('qyweixin.general')->get('agent.'.$configuration['agentId'].'.token'),
+			'encodingAesKey'=>\Drupal::config('qyweixin.general')->get('agent.'.$configuration['agentId'].'.encodingaeskey')
+		);
 		parent::__construct($configuration, $plugin_id, $plugin_definition);
 		$configuration['data']=$configuration;
 		$this->setConfiguration($configuration);

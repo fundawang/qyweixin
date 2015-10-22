@@ -35,58 +35,101 @@ class SettingsForm extends ConfigFormBase {
 	* {@inheritdoc}
 	*/
 	public function buildForm(array $form, FormStateInterface $form_state) {
-		$default_setting=$this->config('qyweixin.general');
+		$config=$this->config('qyweixin.general');
 		$form['corpid']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('CorpID for Qiye Weixin'),
 			'#size' => 25,
-			'#default_value' => empty($default_setting->get('corpid'))?'':$default_setting->get('corpid'),
+			'#default_value' => empty($config->get('corpid'))?'':$config->get('corpid'),
 			'#required' => TRUE,
 		);
 		$form['corpsecret']=array(
 			'#type' => 'textfield',
 			'#title' => $this->t('Corp Secret for Qiye Weixin'),
-			'#size' => 80,
+			'#size' => 90,
 			'#description' => $this->t('Please note that, we only support one manage group per site now.'),
-			'#default_value' => empty($default_setting->get('corpsecret'))?'':$default_setting->get('corpsecret'),
+			'#default_value' => empty($config->get('corpsecret'))?'':$config->get('corpsecret'),
 			'#required' => TRUE,
 		);
 		$form['users']=array(
-			'#type' => 'fieldset',
+			'#type' => 'details',
 			'#title' => $this->t('User interchange between drupal and qyweixin'),
+			'#open' => $config->get('autosync'),
 			'#tree' => TRUE,
 		);
 		$form['users']['autosync']=array(
 			'#type' => 'checkbox',
 			'#title' => $this->t('Auto sync users to qyweixin contact book'),
 			'#description' => $this->t('Automatically add/remove/modify users in qyweixin, according to local user database. Roles will become departments.'),
-			'#default_value' => empty($default_setting->get('autosync'))?'':$default_setting->get('autosync'),
+			'#default_value' => $config->get('autosync'),
 		);
 		
 		$plugins=\Drupal::service('plugin.manager.qyweixin.agent')->getDefinitions();
-		$form_state->setStorage($plugins);
+		foreach($plugins as $plugin => $settings) {
+			$plugins_select[$plugin]=sprintf('%s (%s)', $plugin, $settings['class']);
+		}
+		if(empty($plugins))
+			drupal_set_message(t('Cannot perform settings for agents, as there is no plugins available.'), 'warning');
+
+		$agents=[];
 		try {
 			$agents=CorpBase::agentList();
-			foreach($agents as $agent) {
-				$options[$agent->agentid]=$agent->name;
-			}
-			$type='select';
 		} catch (\Exception $e) {
-			$type='number';
-			$options='';
 		}
-		foreach($plugins as $plugin=>$settings) {
-			$p=\Drupal::service('plugin.manager.qyweixin.agent')->createInstance($plugin, $default_setting->get('plugin.agentid.'.$plugin));
-			$form[$plugin]=['#tree'=>TRUE];
-			$form[$plugin]['agentId']=array(
-				'#type' => $type,
-				'#min' => 1,
-				'#options'=>$options,
-				'#title' => $this->t('AgentID for app !name', ['!name'=>$plugin]),
-				'#default_value' => empty($default_setting->get('plugin.agentid.'.$plugin)['agentId'])?'1':$default_setting->get('plugin.agentid.'.$plugin)['agentId'],
-				'#required' => TRUE,
+
+		$form['agents']=['#tree'=>TRUE, '#access'=>!empty($plugins)];
+		foreach($agents as $agent) {
+			$form['agents'][$agent->agentid]=array(
+				'#type'=>'details',
+				'#open' => $config->get('agent.'.$agent->agentid.'.enabled'),
+				'#title' => $this->t('Settings for agent @agentname (agentid: @agentid)',['@agentname'=>$agent->name, '@agentid'=>$agent->agentid]),
+				'#tree'=>TRUE,
 			);
-			$form[$plugin]+=$p->buildConfigurationForm(array(), $form_state);
+			$form['agents'][$agent->agentid]['responsible']=array(
+				'#type'=>'checkbox',
+				'#title' => t('This agent can be proceeded by @sitename', ['@sitename'=>\Drupal::config('system.site')->get('name')]),
+				'#default_value' => $config->get('agent.'.$agent->agentid.'.enabled'),
+			);
+			$form['agents'][$agent->agentid]['entryclass']=array(
+				'#type'=>'select',
+				'#title' => t('Callback class'),
+				'#options' => $plugins_select,
+				'#default_value' => $config->get('agent.'.$agent->agentid.'.entryclass'),
+				'#states' => array(
+					'visible' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+					'required' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+				),
+			);
+			$form['agents'][$agent->agentid]['token']=array(
+				'#type'=>'textfield',
+				'#title' => t('Callback token'),
+				'#default_value' => $config->get('agent.'.$agent->agentid.'.token'),
+				'#states' => array(
+					'visible' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+					'required' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+				),
+			);
+			$form['agents'][$agent->agentid]['encodingaeskey']=array(
+				'#type'=>'textfield',
+				'#title' => t('Callback EncodingAESKey'),
+				'#default_value' => $config->get('agent.'.$agent->agentid.'.encodingaeskey'),
+				'#states' => array(
+					'visible' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+					'required' => array(
+						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+					),
+				),
+			);
 		}
 		return parent::buildForm($form, $form_state);
 	}
@@ -125,15 +168,16 @@ class SettingsForm extends ConfigFormBase {
 			->set('corpsecret', $form_state->getValue('corpsecret'))
 			->set('autosync', $form_state->getValue(['users','autosync']))
 			->save();
-		
-		$plugins=$form_state->getStorage();
-		foreach($plugins as $plugin=>$settings) {
+			
+		// Then save the mapping of agentid and entryclass
+		foreach($form_state->getValue('agents') as $agentid=>$settings) {
 			$this->config('qyweixin.general')
-				->set('plugin.agentid.'.$plugin, $form_state->getValue($plugin))
+				->set('agent.'.$agentid.'.enabled', $settings['responsible'])
+				->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
+				->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
+				->set('agent.'.$agentid.'.encodingaeskey', $settings['encodingaeskey'])
+				->set('plugin.'.$settings['entryclass'].'agentid', $agentid)
 				->save();
-			$data=(new FormState())->setValues($form_state->getValue($plugin));
-			\Drupal::service('plugin.manager.qyweixin.agent')->createInstance($plugin, $this->config('qyweixin.general')->get('plugin.agentid.'.$plugin))
-				->submitConfigurationForm($form, $data);
 		}
 		
 		parent::submitForm($form, $form_state);
