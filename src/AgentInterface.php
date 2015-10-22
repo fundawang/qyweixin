@@ -16,7 +16,7 @@ use Drupal\Core\Plugin\PluginFormInterface;
  *
  * @see plugin_api
  */
-interface AgentInterface extends PluginInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
+interface AgentInterface extends PluginInspectionInterface, ConfigurablePluginInterface {
 	const MATERIAL_TYPE_MPNEWS='mpnews';
 	const MATERIAL_TYPE_IMAGE='image';
 	const MATERIAL_TYPE_VOICE='voice';

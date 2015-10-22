@@ -105,18 +105,6 @@ class AgentBase extends PluginBase implements AgentInterface {
 	}
 	
 	/**
-	* {@inheritdoc}
-	*/
-	public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-		foreach($form_state->getValues() as $key => $value) {
-			$this->configuration[$key]=$value;
-		}
-	}
-	
-	public function buildConfigurationForm(array $form, FormStateInterface $form_state) {}
-	public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
-	
-	/**
 	 * Retreive agent settings from qyweixin server
 	 *
 	 * @return stdClass or FALSE
