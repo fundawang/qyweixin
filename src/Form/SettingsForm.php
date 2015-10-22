@@ -175,9 +175,11 @@ class SettingsForm extends ConfigFormBase {
 				->set('agent.'.$agentid.'.enabled', $settings['responsible'])->save();
 			if($settings['responsible'])
 				$this->config('qyweixin.general')
+					->clear('agent.'.$agentid)
 					->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
 					->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
 					->set('agent.'.$agentid.'.encodingaeskey', $settings['encodingaeskey'])
+					->clear('plugin.'.$settings['entryclass'])
 					->set('plugin.'.$settings['entryclass'].'.agentid', $agentid)
 				->save();
 		}
