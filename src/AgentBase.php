@@ -12,6 +12,7 @@ use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\qyweixin\CorpBase;
+use Drupal\qyweixin\MessageBase;
 
 /**
  * Provides a base class for QiyeWeixin Agent.
@@ -169,7 +170,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 			$body->touser=$message->getToUser();
 			$body->msgtype=$message->getMsgType();
 			switch($body->msgtype) {
-				case 'text':
+				case MessageBase::MESSAGE_TYPE_TEXT:
 					$body->text=new \stdClass();
 					$body->text->content=$message->getContent();
 			}
