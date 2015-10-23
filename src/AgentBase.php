@@ -158,13 +158,25 @@ class AgentBase extends PluginBase implements AgentInterface {
 	/**
 	 * Send private message to specific user
 	 *
-	 * @param stdClass body
+	 * @param stdClass/MessageBase message
 	 *   body as what qyweixin requires, except that the agentid which will be filled automatically.
 	 * @return this
 	 */
-	public function messageSend($body) {
+	public function messageSend($message) {
+		if(empty($message) || !is_object($message)) return $this;
+		if(get_class($message)=='Drupal\qyweixin\MessageBase') {
+			$body=new \stdClass();
+			$body->touser=$message->getToUser();
+			$body->msgtype=$message->getMsgType();
+			switch($body->msgtype) {
+				case 'text':
+					$body->text=new \stdClass();
+					$body->text->content=$message->getContent();
+			}
+		} else
+			$body=$message;
+
 		try {
-			if(empty($body) || !is_object($body)) return $this;
 			$access_token=CorpBase::getAccessToken();
 			$body->agentid=$this->agentId;
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s', $access_token);
@@ -178,7 +190,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 			return $this;
 		}
 	}
-
+	
 	/**
 	 * Get list of materials of this agent
 	 *
