@@ -165,7 +165,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 */
 	public function messageSend($message) {
 		if(empty($message) || !is_object($message)) return $this;
-		if(get_class($message)=='Drupal\qyweixin\MessageBase') {
+		if($message instanceof MessageBase) {
 			$body=new \stdClass();
 			$body->touser=$message->getToUser();
 			$body->msgtype=$message->getMsgType();
