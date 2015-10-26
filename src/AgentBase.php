@@ -119,8 +119,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/get?access_token=%s&agentid=%s', $access_token, $this->agentId);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 			$ret=$response;
 			unset($ret->errcode);
 			unset($ret->errmsg);
@@ -147,8 +147,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/set?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($agent, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		} finally {
@@ -183,8 +183,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($body, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		} finally {
@@ -215,8 +215,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/batchget?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($body, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 			$ret=$response;
 			unset($ret->errcode);
 			unset($ret->errmsg);

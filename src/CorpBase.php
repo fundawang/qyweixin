@@ -75,9 +75,9 @@ class CorpBase {
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
 				$r=json_decode($data);
 				if(empty($r))
-					throw new \Exception(json_last_error_msg(), json_last_error());
+					throw new \RuntimeException(json_last_error_msg(), json_last_error());
 				if(!empty($r->errcode))
-					throw new \Exception($r->errmsg, $response->errcode);
+					throw new \InvalidArgumentException($r->errmsg, $response->errcode);
 				\Drupal::state()->set('qyweixin.access_token', $r->access_token);
 				\Drupal::state()->set('qyweixin.access_token.expires_in', $r->expires_in+time());
 				self::$access_token=$r->access_token;
@@ -103,8 +103,8 @@ class CorpBase {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/authsucc?access_token=%s&userid=%s', $access_token, $userid);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -129,8 +129,8 @@ class CorpBase {
 			$u->department=$user->department;
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -156,8 +156,8 @@ class CorpBase {
 			$u->enable=$user->enable;
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -187,8 +187,8 @@ class CorpBase {
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			}
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -211,8 +211,8 @@ class CorpBase {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=%s&userid=%s', $access_token, $userid);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		} finally {
@@ -237,8 +237,8 @@ class CorpBase {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s', $access_token, $code);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		} finally {
@@ -271,8 +271,8 @@ class CorpBase {
 			$access_token, $departmentid, (int)$fetch_child, (int)$status);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 			$userlist=$response->userlist;
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
@@ -306,8 +306,8 @@ class CorpBase {
 			$access_token, $departmentid, (int)$fetch_child, $status);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 			$userlist=$response->userlist;
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
@@ -336,8 +336,8 @@ class CorpBase {
 			$d->parentid=$department->parentid;
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($d, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -363,8 +363,8 @@ class CorpBase {
 			$d->parentid=$department->parentid;
 			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($d, JSON_UNESCAPED_UNICODE)])->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -385,8 +385,8 @@ class CorpBase {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=%s&id=%s', $access_token, (int)$departmentid);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());
 		}
@@ -407,8 +407,8 @@ class CorpBase {
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/agent/list?access_token=%s', $access_token);
 			$data = (string) \Drupal::httpClient()->get($url)->getBody();
 			$response=json_decode($data);
-			if(empty($response)) throw new \Exception(json_last_error_msg(), json_last_error());
-			if($response->errcode) throw new \Exception($response->errmsg, $response->errcode);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
 			$ret=$response->agentlist;
 		} catch (\Exception $e) {
 			throw new \Exception($e->getMessage(), $e->getCode());

@@ -147,11 +147,11 @@ class SettingsForm extends ConfigFormBase {
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
 				$r=json_decode($data);
 				if(empty($r))
-					throw new \Exception(json_last_error_msg());
+					throw new \RuntimeException(json_last_error_msg());
 				if(!empty($r->errcode))
-					throw new \Exception(sprintf('%s: %s', $r->errcode, $r->errmsg));
+					throw new \InvalidArgumentException(sprintf('%s: %s', $r->errcode, $r->errmsg));
 				if(empty($r->access_token))
-					throw new \Exception($this->t('Acess Token fetch error.'));
+					throw new \RuntimeException($this->t('Acess Token fetch error.'));
 			} catch (\Exception $e) {
 				$form_state->setErrorByName('corpid', $e->getMessage());
 				$form_state->setErrorByName('corpsecret');
