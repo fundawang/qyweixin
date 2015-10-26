@@ -37,19 +37,19 @@ class Bar extends AgentBase {
 
 主动调用
 --------
-主动调用时，应该生成一个本插件的静态实例：
+主动调用时，应该生成一个本插件的实例：
 
 <pre>
 use Drupal\qyweixin\MessageBase;
 $agent=\Drupal::service('plugin.manager.qyweixin.agent')->createInstance('foo');
-	try {
-		$msg=new MessageBase();
-		$msg->setMsgType(MessageBase::MESSAGE_TYPE_TEXT)->setContent('Hello World')
-		    ->setToUser(USER_ID);
-		$agent->messageSend($msg);
-	} catch(\Exception $e) {
-		var_dump($e->getMessage());
-	}
+try {
+	$msg=new MessageBase();
+	$msg->setMsgType(MessageBase::MESSAGE_TYPE_TEXT)->setContent('Hello World')
+	    ->setToUser(USER_ID);
+	$agent->messageSend($msg);
+} catch(\Exception $e) {
+	var_dump($e->getMessage());
+}
 </pre>
 
 `\Drupal\qyweixin\CorpBase` 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
