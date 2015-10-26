@@ -61,4 +61,6 @@ try {
 }
 </pre>
 
+请注意，本模块不会对错误信息进行任何处理，所有错误信息都将会以异常(Exception)的形式抛出，调用时务必要使用 `try...catch` 语句。
+
 `\Drupal\qyweixin\CorpBase` 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
