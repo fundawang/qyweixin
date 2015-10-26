@@ -10,7 +10,7 @@ Drupal 下的微信企业号模块
 
 插件
 ====
-本模块不包含任何应用或Agent的实现，而使用Drupal的插件机制来管理Agent。意即，你必须在 **`\Drupal\qyweixn\AgentBase`** 这个类的基础上自行派生类，并将其放置在模块的 **`src/Plugin/QyWeixinAgent`** 目录下。插件使用 Annotation 方式发现，所以foo模块的企业微信插件 (`foo/src/Plugin/QyWeixinAgent/Bar.php`) 应该类似这样：
+本模块不包含任何应用或Agent的实现，而使用Drupal的插件机制来管理Agent。意即，你必须在 **`\Drupal\qyweixn\AgentBase`** 这个类的基础上自行派生类，并将其放置在模块的 **`src/Plugin/QyWeixinAgent`** 目录下，作为微信企业号的插件。插件使用 Annotation 方式发现，所以foo模块的企业微信插件 (`foo/src/Plugin/QyWeixinAgent/Bar.php`) 应该类似这样：
 
 <pre>
 
@@ -62,7 +62,3 @@ try {
 </pre>
 
 `\Drupal\qyweixin\CorpBase` 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
-
-插件配置
-========
-插件可以自行决定将所需的配置放
