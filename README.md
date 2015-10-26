@@ -52,4 +52,4 @@ $agent=\Drupal::service('plugin.manager.qyweixin.agent')->createInstance('foo');
 	}
 </pre>
 
-\Drupal\qyweixin\CorpBase 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
+`\Drupal\qyweixin\CorpBase` 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
