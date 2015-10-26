@@ -41,7 +41,7 @@ class Bar extends AgentBase {
 foo.admin.qyweixin:
   title: 'Foo settings'
   route_name: foo.admin.qyweixin
-  **base_route: qyweixin.admin**
+  base_route: qyweixin.admin
 </pre>
 
 主动调用
