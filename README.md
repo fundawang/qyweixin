@@ -34,6 +34,15 @@ use Drupal\qyweixin\AgentBase;
 class Bar extends AgentBase {
 }
 </pre>
+本模块目前只支持插件类与应用(Agent)的一对一关系，无法将不同的应用对应到同一个类上。
+
+插件可自行决定将配置表单放置在哪里。插件可以自定义路由或菜单，但若此配置仅仅与微信有关，可以写在`foo.links.task.yml`中，作为企业微信配置页的一个tab。如：
+<pre>
+foo.admin.qyweixin:
+  title: 'Foo settings'
+  route_name: foo.admin.qyweixin
+  **base_route: qyweixin.admin**
+</pre>
 
 主动调用
 --------
@@ -53,3 +62,7 @@ try {
 </pre>
 
 `\Drupal\qyweixin\CorpBase` 提供了一些静态方法可供调用，比如获得当前的 AccessToken、获得目前管理组secret可见的应用列表等等。
+
+插件配置
+========
+插件可以自行决定将所需的配置放
