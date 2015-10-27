@@ -71,11 +71,7 @@ class SettingsForm extends ConfigFormBase {
 		if(empty($plugins))
 			drupal_set_message(t('Cannot perform settings for agents, as there is no plugins available.'), 'warning');
 
-		$agents=[];
-		try {
-			$agents=CorpBase::agentList();
-		} catch (\Exception $e) {
-		}
+		$agents=\Drupal::state()->get('qyweixin.agents');
 
 		$form['agents']=['#tree'=>TRUE, '#access'=>!empty($plugins)];
 		foreach($agents as $agent) {
@@ -194,6 +190,9 @@ class SettingsForm extends ConfigFormBase {
 					->set('plugin.'.$settings['entryclass'].'.agentid', $agentid)
 				->save();
 		}
+		
+		// Store agentLists in state for later process
+		\Drupal::state()->set('qyweixin.agents', CorpBase::agentList());
 		
 		parent::submitForm($form, $form_state);
 	}
