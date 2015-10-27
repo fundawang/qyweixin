@@ -188,4 +188,12 @@ function qyweixin_user_role_predelete(Drupal\user\RoleInterface $role) {
 	}
 }
 
+/**
+ * Implements hook_cron for qyweixin module.
+ */
+function qyweixin_cron() {
+	// Update agentList when cron runs.
+	Drupal::state()->set('qyweixin.agents', CorpBase::agentList());
+}
+
 ?>
