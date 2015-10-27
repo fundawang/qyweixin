@@ -81,7 +81,7 @@ class SettingsForm extends ConfigFormBase {
 				'#title' => $this->t('Settings for agent @agentname (agentid: @agentid)',['@agentname'=>$agent->name, '@agentid'=>$agent->agentid]),
 				'#tree'=>TRUE,
 			);
-			$form['agents'][$agent->agentid]['responsible']=array(
+			$form['agents'][$agent->agentid]['enabled']=array(
 				'#type'=>'checkbox',
 				'#title' => t('This agent can be proceeded by @sitename', ['@sitename'=>\Drupal::config('system.site')->get('name')]),
 				'#default_value' => $config->get('agent.'.$agent->agentid.'.enabled'),
@@ -94,10 +94,10 @@ class SettingsForm extends ConfigFormBase {
 				'#description' => t('Please note that only 1-to-1 mapping between entryclass and agentid is supported. So you cannot set ONE entry class for multiple agents.'),
 				'#states' => array(
 					'visible' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 					'required' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 				),
 			);
@@ -107,10 +107,10 @@ class SettingsForm extends ConfigFormBase {
 				'#default_value' => $config->get('agent.'.$agent->agentid.'.token'),
 				'#states' => array(
 					'visible' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 					'required' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 				),
 			);
@@ -120,10 +120,10 @@ class SettingsForm extends ConfigFormBase {
 				'#default_value' => $config->get('agent.'.$agent->agentid.'.encodingaeskey'),
 				'#states' => array(
 					'visible' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 					'required' => array(
-						':input[name="agents['.$agent->agentid.'][responsible]"]' => array('checked' => TRUE),
+						':input[name="agents['.$agent->agentid.'][enabled]"]' => array('checked' => TRUE),
 					),
 				),
 			);
@@ -157,7 +157,7 @@ class SettingsForm extends ConfigFormBase {
 		// Only 1-to-1 entryclass vs agentis is allowed now.
 		foreach($form_state->getValue('agents') as $agentid=>$settings) {
 			foreach($form_state->getValue('agents') as $id=>$sets) {
-				if($agentid<>$id && $settings['responsible'] && $sets['responsible'] && $settings['entryclass']==$sets['entryclass']) {
+				if($agentid<>$id && $settings['enabled'] && $sets['enabled'] && $settings['entryclass']==$sets['entryclass']) {
 					$form_state->setErrorByName('agents]['.$agentid.'][entryclass', t('Entry class overlapped.'));
 					$form_state->setErrorByName('agents]['.$id.'][entryclass');
 				}
@@ -180,8 +180,8 @@ class SettingsForm extends ConfigFormBase {
 		foreach($form_state->getValue('agents') as $agentid=>$settings) {
 			$this->config('qyweixin.general')
 				->clear('agent.'.$agentid)
-				->set('agent.'.$agentid.'.enabled', $settings['responsible'])->save();
-			if($settings['responsible'])
+				->set('agent.'.$agentid.'.enabled', $settings['enabled'])->save();
+			if($settings['enabled'])
 				$this->config('qyweixin.general')
 					->set('agent.'.$agentid.'.entryclass', $settings['entryclass'])
 					->set('agent.'.$agentid.'.token', $settings['encodingaeskey'])
