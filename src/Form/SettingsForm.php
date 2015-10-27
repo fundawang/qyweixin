@@ -148,6 +148,8 @@ class SettingsForm extends ConfigFormBase {
 					throw new \InvalidArgumentException(sprintf('%s: %s', $r->errcode, $r->errmsg));
 				if(empty($r->access_token))
 					throw new \RuntimeException($this->t('Acess Token fetch error.'));
+				\Drupal::state()->set('qyweixin.access_token', $r->access_token);
+				\Drupal::state()->set('qyweixin.access_token.expires_in', $r->expires_in+time());
 			} catch (\Exception $e) {
 				$form_state->setErrorByName('corpid', $e->getMessage());
 				$form_state->setErrorByName('corpsecret');
