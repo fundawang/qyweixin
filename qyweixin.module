@@ -193,7 +193,13 @@ function qyweixin_user_role_predelete(Drupal\user\RoleInterface $role) {
  */
 function qyweixin_cron() {
 	// Update agentList when cron runs.
-	Drupal::state()->set('qyweixin.agents', CorpBase::agentList());
+	try {
+		Drupal::state()->set('qyweixin.agents', CorpBase::agentList());
+	} catch (Exception $e) {
+		Drupal::logger('qyweixin')->error('Fetching agent list from qyweixin failed: !errcode, !errmsg.',
+			array('!errcode'=>$e->getCode(), '!errmsg'=>$e->getMessage())
+		);
+	}
 }
 
 ?>
