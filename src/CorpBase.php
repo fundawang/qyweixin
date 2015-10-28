@@ -317,6 +317,30 @@ class CorpBase {
 	}
 
 	/**
+	 * Wrapper of QyWeixin's invite/send function.
+	 *
+	 * @param string $userid
+	 *   The id of user you wan to invite.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
+	public static function inviteSend($userid) {
+		try {
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/invite/send?access_token=%s', $access_token);
+			$u=new \stdClass();
+			$u->userid=$userid;
+			$data = (string) \Drupal::httpClient()->post($url, ['body'=>json_encode($u, JSON_UNESCAPED_UNICODE)])->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+	}
+
+	/**
 	 * Wrapper of QyWeixin's department/create function.
 	 *
 	 * @param stdClass $department
