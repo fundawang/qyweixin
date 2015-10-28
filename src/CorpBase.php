@@ -507,4 +507,28 @@ class CorpBase {
 		}
 	}
 	
+	/**
+	 * Wrapper of QyWeixin's media/get function.
+	 *
+	 * @param string $media_id
+	 *   The media_id you uploaded.
+	 *
+	 * @return GuzzleHttp\Psr7\ResponseInterface
+	 *   The received response object for the caller to save.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
+	public static function mediaGet($media_id) {
+		$response=new \GuzzleHttp\Psr7\Response;
+		try {
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=%s&media_id=%s', $access_token, $media_id);
+			$response = \Drupal::httpClient()->get($url);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $response;
+		}
+	}
 }
