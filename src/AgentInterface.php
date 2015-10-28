@@ -28,5 +28,9 @@ interface AgentInterface extends PluginInspectionInterface, ConfigurablePluginIn
 	
 	public function messageSend($body);
 	
-	public function materialBatchGet($type=MATERIAL_TYPE_IMAGE, $offset=0, $count=10);
+	public function materialAddMaterial(FileInterface $file, $type=MATERIAL_TYPE_FILE);
+	public function materialGet($media_id);
+	public function materialDel($media_id);
+	public function materialGetCount($type='');
+	public function materialBatchGet($type=MATERIAL_TYPE_FILE, $offset=0, $count=10);
 }

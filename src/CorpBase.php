@@ -481,7 +481,7 @@ class CorpBase {
 	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
 	 *
 	 */
-	public static function mediaUpload($type, FileInterface $file) {
+	public static function mediaUpload(FileInterface $file, $type='file') {
 		$media_id='';
 		try {
 			$access_token=self::getAccessToken();

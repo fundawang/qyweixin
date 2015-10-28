@@ -193,6 +193,121 @@ class AgentBase extends PluginBase implements AgentInterface {
 	}
 	
 	/**
+	 * Upload permanent material that could be used in this agent
+	 *
+	 * @param FileInterface file
+	 *   The file you want to upload
+	 *
+	 * @param cost type
+	 *   The filetype you wan to upload
+	 *
+	 * @return
+	 *   The media_id returned by Tencent QiyeWeixin Interface
+	 */
+	public function materialAddMaterial(FileInterface $file, $type=MATERIAL_TYPE_FILE) {
+		$media_id='';
+		try {
+			$access_token=CorpBase::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/add_material?access_token=%s&type=%s&agentid=%s', $access_token, $type, $this->agentId);
+			$handle=fopen($file->getFileUri(), 'r');
+			$body=[[
+				'name' => 'media',
+				'filename' => $file->getFilename(),
+				'filelength' => $file->getSize(),
+				'content-type' => $file->getMimeType(),
+				'contents' => $handle,
+			]];
+			$data = (string) \Drupal::httpClient()->post($url, ['multipart'=>$body])->getBody();
+			fclose($handle);
+			$response=json_decode($data);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+			$media_id=$response->media_id;
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $media_id;
+		}
+	}
+
+	/**
+	 * Retreive permanent material that could be used in this agent
+	 *
+	 * @param string media_id
+	 *   The media_id you want to get
+	 *
+	 * @return GuzzleHttp\Psr7\ResponseInterface
+	 *   The received response object for the caller to save.
+	 */
+	public function materialGet($media_id) {
+		$response=new \GuzzleHttp\Psr7\Response;
+		try {
+			$access_token=CorpBase::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/get?access_token=%s&media_id=%s&agentid=%s', $access_token, $media_id, $this->agentId);
+			$response = \Drupal::httpClient()->get($url);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $response;
+		}
+	}
+
+	/**
+	 * Delete permanent material that could be used in this agent
+	 *
+	 * @param string media_id
+	 *   The media_id you want to delete
+	 *
+	 * @return this
+	 */
+	public function materialDel($media_id) {
+		try {
+			$access_token=CorpBase::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/del?access_token=%s&media_id=%s&agentid=%s', $access_token, $media_id, $this->agentId);
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $this;
+		}
+	}
+
+	/**
+	 * Get Count of permanent materials that could be used in this agent
+	 *
+	 * @param const type
+	 *   The type of materials you want to count
+	 *
+	 * @return int or array
+	 *   The number of the type you specified, or array of all types
+	 */
+	public function materialGetCount($type='') {
+		$ret='';
+		try {
+			$access_token=CorpBase::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/get_count?access_token=%s&agentid=%s', $access_token, $this->agentId);
+			$data = (string) \Drupal::httpClient()->get($url)->getBody();
+			$response=json_decode($data);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+			$ret=(array)$response;
+			unset($ret['errcode']);
+			unset($ret['errmsg']);
+			if(!empty($type)) {
+				$ret=$ret[$type.'_count'];
+			}
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $ret;
+		}
+	}
+
+
+	/**
 	 * Get list of materials of this agent
 	 *
 	 * @param const type
@@ -203,7 +318,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 *
 	 * @return stdClass
 	 */
-	public function materialBatchGet($type=MATERIAL_TYPE_IMAGE, $offset=0, $count=10) {
+	public function materialBatchGet($type=MATERIAL_TYPE_FILE, $offset=0, $count=10) {
 		try {
 			$ret=new \stdClass();
 			$access_token=CorpBase::getAccessToken();
