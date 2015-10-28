@@ -7,6 +7,7 @@
 
 namespace Drupal\qyweixin;
 
+use Drupal\file\FileInterface;
 use Drupal\qyweixin\lib\WXBizMsgCrypt;
 
 class CorpBase {
@@ -320,7 +321,7 @@ class CorpBase {
 	 * Wrapper of QyWeixin's invite/send function.
 	 *
 	 * @param string $userid
-	 *   The id of user you wan to invite.
+	 *   The id of user you want to invite.
 	 *
 	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
 	 *
@@ -465,4 +466,45 @@ class CorpBase {
 			throw new \Exception('Encrypt error', $errCode);
 		else return $sEncryptMsg;
 	}
+
+	/**
+	 * Wrapper of QyWeixin's media/upload function.
+	 *
+	 * @param string $type
+	 *   The type of file you want to upload.
+	 * @param FileInterface $file
+	 *   The file you want to upload.
+	 *
+	 * @return media_id
+	 *   The media_id returned by Tencent qyweixin interface.
+	 *
+	 *   Exception could be thrown if error occurs. The caller should take care of the exception.
+	 *
+	 */
+	public static function mediaUpload($type, FileInterface $file) {
+		$media_id='';
+		try {
+			$access_token=self::getAccessToken();
+			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s', $access_token, $type);
+			$handle=fopen($file->getFileUri(), 'r');
+			$body=[[
+				'name' => 'media',
+				'filename' => $file->getFilename(),
+				'filelength' => $file->getSize(),
+				'content-type' => $file->getMimeType(),
+				'contents' => $handle,
+			]];
+			$data = (string) \Drupal::httpClient()->post($url, ['multipart'=>$body])->getBody();
+			fclose($handle);
+			$response=json_decode($data);
+			if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+			if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+			$media_id=$response->media_id;
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $media_id;
+		}
+	}
+	
 }
