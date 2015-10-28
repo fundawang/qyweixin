@@ -205,6 +205,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 *   The media_id returned by Tencent QiyeWeixin Interface
 	 */
 	public function materialAddMaterial(FileInterface $file, $type=MATERIAL_TYPE_FILE) {
+		if(empty($this->agentId)) return FALSE;
 		$media_id='';
 		try {
 			$access_token=CorpBase::getAccessToken();
@@ -240,6 +241,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 *   The received response object for the caller to save.
 	 */
 	public function materialGet($media_id) {
+		if(empty($this->agentId)) return FALSE;
 		$response=new \GuzzleHttp\Psr7\Response;
 		try {
 			$access_token=CorpBase::getAccessToken();
@@ -261,6 +263,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 * @return this
 	 */
 	public function materialDel($media_id) {
+		if(empty($this->agentId)) return FALSE;
 		try {
 			$access_token=CorpBase::getAccessToken();
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/material/del?access_token=%s&media_id=%s&agentid=%s', $access_token, $media_id, $this->agentId);
@@ -285,6 +288,7 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 *   The number of the type you specified, or array of all types
 	 */
 	public function materialGetCount($type='') {
+		if(empty($this->agentId)) return FALSE;
 		$ret='';
 		try {
 			$access_token=CorpBase::getAccessToken();
@@ -319,6 +323,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 * @return stdClass
 	 */
 	public function materialBatchGet($type=MATERIAL_TYPE_FILE, $offset=0, $count=10) {
+		if(empty($this->agentId)) return FALSE;
+		$ret='';
 		try {
 			$ret=new \stdClass();
 			$access_token=CorpBase::getAccessToken();
