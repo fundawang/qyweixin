@@ -202,4 +202,12 @@ function qyweixin_cron() {
 	}
 }
 
+/**
+ * Implements hook_uninstall for qyweixin module.
+ */
+function qyweixin_uninstall() {
+	// Remove all states 
+	Drupal::state()->deleteMultiple(['qyweixin.max_department_id', 'qyweixin.agents', 'qyweixin.access_token', 'qyweixin.access_token.expires_in']);
+}
+
 ?>
