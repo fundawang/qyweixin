@@ -324,9 +324,8 @@ class AgentBase extends PluginBase implements AgentInterface {
 	 */
 	public function materialBatchGet($type=MATERIAL_TYPE_FILE, $offset=0, $count=10) {
 		if(empty($this->agentId)) return FALSE;
-		$ret='';
+		$ret=new \stdClass();
 		try {
-			$ret=new \stdClass();
 			$access_token=CorpBase::getAccessToken();
 			$body=new \stdClass();
 			$body->type=$type;
