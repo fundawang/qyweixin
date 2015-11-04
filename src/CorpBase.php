@@ -91,6 +91,33 @@ class CorpBase {
 	}
 
 	/**
+	 * Retrieve jsapi_ticket to be used in html5 pages
+	 *
+	 * @return string
+	 *   The jsapi_ticket return by Tencent qyweixin interface
+	 */
+	public static function getJsapiTicket() {
+		$jsapi_ticket=\Drupal::state()->get('qyweixin.jsapi_ticket');
+		$jsapi_ticket_expires_in=\Drupal::state()->get('qyweixin.jsapi_ticket.expires_in');
+		if(empty($jsapi_ticket) || empty($jsapi_ticket_expires_in) || $jsapi_ticket_expires_in -5 > time())
+			try {
+				$jsapi_ticket='';
+				$access_token=self::getAccessToken();
+				$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=%s', $access_token);
+				$data = (string) \Drupal::httpClient()->get($url)->getBody();
+				$response=json_decode($data);
+				if(empty($response)) throw new \RuntimeException(json_last_error_msg(), json_last_error());
+				if($response->errcode) throw new \InvalidArgumentException($response->errmsg, $response->errcode);
+				$jsapi_ticket=$response->ticket;
+				\Drupal::state()->set('qyweixin.jsapi_ticket', $response->ticket);
+				\Drupal::state()->set('qyweixin.jsapi_ticket.expires_in', $response->expires_in+time());
+			} catch (\Exception $e) {
+				throw new \Exception($e->getMessage(), $e->getCode());
+			}
+		return $jsapi_ticket;
+	}
+	
+	/**
 	 * Wrapper of QyWeixin's user/authsucc function.
 	 *
 	 * @param string $userid
