@@ -57,6 +57,22 @@ class CorpBase {
 	*/
 	protected static $access_token_expires_in=0;
 
+	
+	/**
+	 * Generate private noncestr to be used in other functions
+	 *
+	 * @return string
+	 *   The noncestr return generated
+	 */
+	private static function createNonceStr($length = 16) {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$str = "";
+		for ($i = 0; $i < $length; $i++) {
+			$str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+		}
+		return $str;
+	}
+
 	/**
 	 * Retrieve access_token to be used in other functions
 	 *
@@ -117,6 +133,31 @@ class CorpBase {
 		return $jsapi_ticket;
 	}
 	
+	/**
+	 * Produce jsapi injection code to be inserted to html page
+	 *
+	 * @return array
+	 *   The settings corresponding to wx.config function as suggested by qyweixin
+	 */
+	public static function getJsapiInjection($url='', $jsApiList=[]) {
+		$timestamp=time();
+		$noncestr=self::createNonceStr();
+		$config=[
+			'jsapi_ticket' => self::getJsapiTicket(),
+			'noncestr' => $noncestr,
+			'timestamp' => $timestamp,
+			'url' => $url
+		];
+		$ret=[
+			'corpId' => self::$corpid,
+			'timestamp' => $timestamp,
+			'nonceStr' => $noncestr,
+			'signature' => sha1(implode('&',$config)),
+			'jsApiList' => json_encode($jsApiList)
+		];
+		return $ret;
+	}
+
 	/**
 	 * Wrapper of QyWeixin's user/authsucc function.
 	 *
