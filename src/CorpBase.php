@@ -84,7 +84,8 @@ class CorpBase {
 		if(empty(self::$corpsecret)) self::$corpsecret=\Drupal::config('qyweixin.general')->get('corpsecret');
 		if(empty(self::$access_token)) self::$access_token=\Drupal::state()->get('qyweixin.access_token');
 		if(empty(self::$access_token_expires_in)) self::$access_token_expires_in=\Drupal::state()->get('qyweixin.access_token.expires_in');
-		if(empty(self::$access_token) || empty(self::$access_token_expired_in) || self::$access_token_expires_in-5>=time()) {
+		
+		if(empty(self::$access_token) || empty(self::$access_token_expired_in) || self::$access_token_expires_in > time()-5) {
 			self::$corpid=\Drupal::config('qyweixin.general')->get('corpid');
 			self::$corpsecret=\Drupal::config('qyweixin.general')->get('corpsecret');
 			$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s', self::$corpid, self::$corpsecret);
@@ -113,12 +114,11 @@ class CorpBase {
 	 *   The jsapi_ticket return by Tencent qyweixin interface
 	 */
 	public static function getJsapiTicket() {
-		$jsapi_ticket=\Drupal::state()->get('qyweixin.jsapi_ticket');
-		$jsapi_ticket_expires_in=\Drupal::state()->get('qyweixin.jsapi_ticket.expires_in');
-		if(empty($jsapi_ticket) || empty($jsapi_ticket_expires_in) || $jsapi_ticket_expires_in -5 > time())
-			try {
-				$jsapi_ticket='';
-				$access_token=self::getAccessToken();
+		try {
+			$access_token=self::getAccessToken();
+			$jsapi_ticket=\Drupal::state()->get('qyweixin.jsapi_ticket');
+			$jsapi_ticket_expires_in=\Drupal::state()->get('qyweixin.jsapi_ticket.expires_in');
+			if(empty($jsapi_ticket) || empty($jsapi_ticket_expires_in) || ($jsapi_ticket_expires_in > time() -5) ) {
 				$url=sprintf('https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=%s', $access_token);
 				$data = (string) \Drupal::httpClient()->get($url)->getBody();
 				$response=json_decode($data);
@@ -127,10 +127,12 @@ class CorpBase {
 				$jsapi_ticket=$response->ticket;
 				\Drupal::state()->set('qyweixin.jsapi_ticket', $response->ticket);
 				\Drupal::state()->set('qyweixin.jsapi_ticket.expires_in', $response->expires_in+time());
-			} catch (\Exception $e) {
-				throw new \Exception($e->getMessage(), $e->getCode());
 			}
-		return $jsapi_ticket;
+		} catch (\Exception $e) {
+			throw new \Exception($e->getMessage(), $e->getCode());
+		} finally {
+			return $jsapi_ticket;
+		}
 	}
 	
 	/**
